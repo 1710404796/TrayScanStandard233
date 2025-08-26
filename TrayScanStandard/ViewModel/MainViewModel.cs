@@ -41,6 +41,7 @@ namespace TrayScanStandard.ViewModel
         // 標準化一下
         private bool _isWcsEnable = false;
         private Thread _someThread;
+        private volatile bool _shouldStopThread = false;
 
         public bool IsLoading => !IsWcsEnable;
 
@@ -114,17 +115,36 @@ namespace TrayScanStandard.ViewModel
 
         private async void SomeLoop(object? obj)
         {
-            while (!IsWcsEnable)
+            while (!IsWcsEnable && !_shouldStopThread)
             {
                 await Task.Delay(1000);
-
             }
-            while (!CacheService.Token.IsCancellationRequested)
+            while (!CacheService.Token.IsCancellationRequested && !_shouldStopThread)
             {
-
                 //PlcIsRunning = XcplcService.IsPlcRunning;
                 await Task.Delay(1000);
             }
+        }
+
+        /// <summary>
+        /// Cleanup method to stop background thread and prevent memory leaks
+        /// </summary>
+        public void Cleanup()
+        {
+            _shouldStopThread = true;
+            
+            // Give the thread a moment to finish gracefully
+            if (_someThread != null && _someThread.IsAlive)
+            {
+                if (!_someThread.Join(TimeSpan.FromSeconds(2)))
+                {
+                    // Log warning if thread doesn't stop gracefully
+                    Logger?.LogWarning("Background thread did not stop gracefully within timeout");
+                }
+            }
+
+            Maints?.Cancel();
+            Maints?.Dispose();
         }
     }
 

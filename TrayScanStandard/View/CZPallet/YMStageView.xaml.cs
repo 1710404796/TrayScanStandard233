@@ -1,5 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using TrayScanStandard.Models;
@@ -10,8 +13,10 @@ namespace TrayScanStandard.View.CZPallet
     /// <summary>
     /// YMStageView.xaml 的交互逻辑
     /// </summary>
-    public partial class YWStageView : UserControl
+    public partial class YWStageView : UserControl, IDisposable
     {
+        private readonly List<GongWeiView> _createdViews = new List<GongWeiView>();
+        private bool _disposed = false;
 
         public YWStageView()
         {
@@ -57,6 +62,8 @@ namespace TrayScanStandard.View.CZPallet
         private void SetViewStyle(GongWeiView view, XYLStation xYLStation)
         {
             GongWeiSim.Children.Add(view);
+            _createdViews.Add(view); // Track created views for cleanup
+            
             if (xYLStation != null)
             {
                 if (xYLStation is Pallet p)
@@ -109,6 +116,48 @@ namespace TrayScanStandard.View.CZPallet
                 {
                     item.ClearStage();
                 }
+            }
+        }
+
+        private void CleanupViews()
+        {
+            foreach (var view in _createdViews)
+            {
+                if (view != null)
+                {
+                    // Remove event handler to prevent memory leaks
+                    view.MouseDown -= View_MouseDown;
+                    
+                    // Dispose PalletView if it implements IDisposable
+                    if (view.Pallet1 is IDisposable disposablePallet)
+                    {
+                        disposablePallet.Dispose();
+                    }
+                    
+                    // Clear bindings
+                    BindingOperations.ClearAllBindings(view);
+                }
+            }
+            _createdViews.Clear();
+            GongWeiSim?.Children.Clear();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    CleanupViews();
+                    BindingOperations.ClearAllBindings(this);
+                }
+                _disposed = true;
             }
         }
     }

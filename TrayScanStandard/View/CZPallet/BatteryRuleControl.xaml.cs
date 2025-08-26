@@ -20,8 +20,9 @@ namespace TrayScanStandard.View.CZPallet
     /// <summary>
     /// BatteryRuleControl.xaml 的交互逻辑
     /// </summary>
-    public partial class BatteryRuleControl : UserControl
+    public partial class BatteryRuleControl : UserControl, IDisposable
     {
+        private bool _disposed = false;
 
         public Action<BatteryRuleControl> OnDelete { get; set; }
         public BatteryRuleControl(BatteryTypeRule item)
@@ -40,6 +41,29 @@ namespace TrayScanStandard.View.CZPallet
             {
                 OnDelete?.Invoke(this);
 
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Clear the action delegate to release potential references
+                    OnDelete = null;
+                    
+                    // Clear bindings
+                    BindingOperations.ClearAllBindings(this);
+                    DataContext = null;
+                }
+                _disposed = true;
             }
         }
     }

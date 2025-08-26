@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -63,6 +64,7 @@ namespace TrayScanStandard
         public static async void NageTo(FrameworkElement frameworkElement)
         {
             var mediator1 = App.GetService<IMediator>();
+            var mainWindow = (App.Current.MainWindow as MainWindow)!;
 
             var tt = frameworkElement.GetType().GetCustomAttribute<PowerViewAttribute>();
             if (tt != null)
@@ -74,16 +76,21 @@ namespace TrayScanStandard
                 else
                 {
                     MessageBox.Show("当前没有权限访问此页面!");
-                    (App.Current.MainWindow as MainWindow)!.ContentFrame.Content = null;
+                    DisposeCurrentContent(mainWindow);
+                    mainWindow.ContentFrame.Content = null;
                     return;
                 }
             }
-                (App.Current.MainWindow as MainWindow)!.ContentFrame.Content = frameworkElement;
+            
+            // Dispose of the previous content to prevent memory leaks
+            DisposeCurrentContent(mainWindow);
+            mainWindow.ContentFrame.Content = frameworkElement;
         }
 
         public static async void NageTo<T>() where T : FrameworkElement
         {
             var mediator1 = App.GetService<IMediator>();
+            var mainWindow = (App.Current.MainWindow as MainWindow)!;
 
             var tt = typeof(T).GetCustomAttribute<PowerViewAttribute>();
             if (tt != null)
@@ -95,14 +102,37 @@ namespace TrayScanStandard
                 else
                 {
                     MessageBox.Show("当前没有权限访问此页面!");
-                    (App.Current.MainWindow as MainWindow)!.ContentFrame.Content = null;
+                    DisposeCurrentContent(mainWindow);
+                    mainWindow.ContentFrame.Content = null;
                     return;
                 }
             }
-            if ((App.Current.MainWindow as MainWindow)!.ContentFrame.Content is not T)
-                (App.Current.MainWindow as MainWindow)!.ContentFrame.Content = App.GetService<T>();
+            
+            if (mainWindow.ContentFrame.Content is not T)
+            {
+                // Dispose of the previous content to prevent memory leaks
+                DisposeCurrentContent(mainWindow);
+                mainWindow.ContentFrame.Content = App.GetService<T>();
+            }
         }
 
+        /// <summary>
+        /// Helper method to properly dispose of current content to prevent memory leaks
+        /// </summary>
+        /// <param name="mainWindow">The main window instance</param>
+        private static void DisposeCurrentContent(MainWindow mainWindow)
+        {
+            if (mainWindow.ContentFrame.Content is IDisposable disposableContent)
+            {
+                disposableContent.Dispose();
+            }
+            else if (mainWindow.ContentFrame.Content is FrameworkElement element)
+            {
+                // Clear data context and bindings for non-disposable elements
+                BindingOperations.ClearAllBindings(element);
+                element.DataContext = null;
+            }
+        }
 
 
         private void LogDash_Click(object sender, RoutedEventArgs e)
@@ -123,7 +153,12 @@ namespace TrayScanStandard
         }
         private void Window_Closed(object sender, EventArgs e)
         {
+            // Cleanup ViewModel resources
+            ViewModel.Cleanup();
             ViewModel.CacheService.Cancel();
+
+            // Dispose current content to prevent memory leaks
+            DisposeCurrentContent(this);
 
             MainStorage.SaveManager.Save();
         }

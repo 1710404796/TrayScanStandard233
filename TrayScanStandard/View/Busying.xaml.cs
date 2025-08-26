@@ -1,10 +1,12 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace TrayScanStandard.View
 {
-    public partial class Busying : UserControl
+    public partial class Busying : UserControl, IDisposable
     {
 
 
@@ -44,6 +46,27 @@ namespace TrayScanStandard.View
         public Busying()
         {
             InitializeComponent();
+        }
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Clear bindings
+                    BindingOperations.ClearAllBindings(this);
+                }
+                _disposed = true;
+            }
         }
     }
 }

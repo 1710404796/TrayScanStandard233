@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using TrayScanStandard.Models;
@@ -11,10 +13,11 @@ namespace TrayScanStandard.View.CZPallet
     /// <summary>
     /// DiaoSuDetail.xaml 的交互逻辑
     /// </summary>
-    public partial class StationDetail : UserControl
+    public partial class StationDetail : UserControl, IDisposable
     {
         private readonly IMediator meditor;
         //private readonly ILogger<StationDetail> logger;
+        private bool _disposed = false;
 
         public XYLStation Station { get; set; }
 
@@ -144,5 +147,30 @@ namespace TrayScanStandard.View.CZPallet
         //        p.BanSaoma = !(sender as CheckBox).IsChecked ?? false;
         //    }
         //}
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose PalletD if it implements IDisposable
+                    if (PalletD is IDisposable disposablePallet)
+                    {
+                        disposablePallet.Dispose();
+                    }
+                    
+                    // Clear bindings
+                    BindingOperations.ClearAllBindings(this);
+                }
+                _disposed = true;
+            }
+        }
     }
 }

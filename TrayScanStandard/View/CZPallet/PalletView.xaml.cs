@@ -11,13 +11,14 @@ namespace TrayScanStandard.View.CZPallet
     /// <summary>
     /// PalletView.xaml 的交互逻辑
     /// </summary>
-    public partial class PalletView : UserControl
+    public partial class PalletView : UserControl, IDisposable
     {
         /// <summary>
         /// 电池通道
         /// </summary>
         private Border[] _borders;
         private readonly ILogger<PalletView> _logger;
+        private bool _disposed = false;
 
         public bool ClickAvaliable { get; set; } = true;
 
@@ -154,6 +155,7 @@ namespace TrayScanStandard.View.CZPallet
         public void Refesh()
         {
             // 如何销毁（？ 清除后再初始化
+            CleanupEventHandlers();
             PalletStack.Children.Clear();
             InitBorder();
         }
@@ -173,6 +175,56 @@ namespace TrayScanStandard.View.CZPallet
         {
             return;
             //MainWindow.NageTo(new DiaoSuDetail ( new DiaoSuDetailViewModel { PalletViewModel = ViewModel });
+        }
+
+        private void CleanupEventHandlers()
+        {
+            if (_borders != null)
+            {
+                foreach (var border in _borders)
+                {
+                    if (border != null)
+                    {
+                        // Clear all mouse down event handlers to prevent memory leaks
+                        border.MouseDown = null;
+                        // Clear binding to release references
+                        BindingOperations.ClearAllBindings(border);
+                        
+                        // Clean up child controls and their bindings
+                        if (border.Child is Grid grid)
+                        {
+                            foreach (UIElement child in grid.Children)
+                            {
+                                BindingOperations.ClearAllBindings(child);
+                            }
+                            grid.Children.Clear();
+                        }
+                    }
+                }
+                _borders = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    CleanupEventHandlers();
+                    // Clear children to ensure proper cleanup
+                    PalletStack?.Children.Clear();
+                    // Clear data context binding
+                    BindingOperations.ClearAllBindings(this);
+                }
+                _disposed = true;
+            }
         }
     }
 }
