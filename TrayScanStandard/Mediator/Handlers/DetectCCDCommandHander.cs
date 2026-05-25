@@ -44,7 +44,7 @@ namespace TrayScanStandard.Mediator.Handlers
 
             // 执行拍照命令
             var data = await mediator.Send(new CamCaptureCommand(captureInfos));
-            Console.WriteLine("testData");
+            Console.WriteLine("执行拍照命令");
 
 
             // 将图片存为文件
