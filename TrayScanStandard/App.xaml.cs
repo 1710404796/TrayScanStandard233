@@ -110,7 +110,8 @@ namespace TrayScanStandard
                              config.WaitForJobsToComplete = true;
                          });
 
-                         services.AddSingleton<LinxAuthenticationStateProvider, StandLinxAuthenticationStateProvider<LinxUser>>();
+                         // services.AddSingleton<LinxAuthenticationStateProvider, StandLinxAuthenticationStateProvider<LinxUser>>();
+                         services.AddSingleton<LinxAuthenticationStateProvider, TrayScanAuthenticationStateProvider>();
 
                          services.AddAuth<LinxUser>();
 
