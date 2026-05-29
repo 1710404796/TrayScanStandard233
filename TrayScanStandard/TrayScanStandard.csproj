@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
 	  <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
 	  <Platforms>AnyCPU;x64</Platforms>
-	  <ApplicationIcon>catl.ico</ApplicationIcon>
+	  <ApplicationIcon>灵西机器人原色.ico</ApplicationIcon>
 
   </PropertyGroup>
 
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="catl.ico" />
+    <Content Include="灵西机器人原色.ico" />
   </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
