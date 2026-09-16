@@ -17,10 +17,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>        <!-- 标题 -->
+        </Grid.RowDefinitions>
+        <!-- 标题 -->
         <Border Grid.Row="0" Background="{DynamicResource SystemControlBackgroundAltHighBrush}" CornerRadius="5" Padding="10">
             <TextBlock Text="光源管理配置" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-        </Border>        <!-- 表格 -->
+        </Border>
+        <!-- 表格 -->
         <Border Grid.Row="1" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}" BorderThickness="1" Margin="0,15,0,0" CornerRadius="3">
             <DataGrid ItemsSource="{Binding ViewModel.LightInfos}"
                     SelectedItem="{Binding ViewModel.SelectedLightInfo}"
@@ -48,7 +50,8 @@
                     <DataGridTextColumn Header="光源值 (逗号分隔)" Binding="{Binding ValuesString}" Width="2*"/>
                 </DataGrid.Columns>
             </DataGrid>
-        </Border>        <!-- 错误信息 -->
+        </Border>
+        <!-- 错误信息 -->
         <TextBlock Grid.Row="2" 
                  Text="{Binding ErrorMessage}" 
                  Foreground="{DynamicResource SystemControlErrorTextForegroundBrush}" 
@@ -62,13 +65,14 @@
                     </Binding.Converter>
                 </Binding>
             </TextBlock.Visibility>
-         </TextBlock>        <!-- 操作区域统一布局 - 使用统一的界面风格和对齐方式 -->
+        </TextBlock>
+        <!-- 操作区域统一布局 - 使用统一的界面风格和对齐方式 -->
         <Grid Grid.Row="3" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
+
             <!-- 添加光源区域 -->
             <GroupBox Grid.Column="0" Header="添加新光源" Margin="0,0,5,0" Padding="12">
                 <Grid>
@@ -81,25 +85,38 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    
-                    <!-- COM 端口选择 -->
-                    <TextBlock Grid.Row="0" Grid.Column="0" 
-                               Text="COM 端口:" 
+                    <!-- 光源选择 -->
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="光源选择:" 
                                VerticalAlignment="Center" 
                                Margin="0,0,10,0"
-                               HorizontalAlignment="Right"/>
-                               
+                               HorizontalAlignment="Left"/>
+
+                    <!-- COM 端口选择 -->
+                    <TextBlock Grid.Row="0" Grid.Column="1" 
+                               Text="COM 端口:" 
+                               VerticalAlignment="Center" 
+                               Margin="130,0,10,0"
+                               HorizontalAlignment="Left"/>
+
                     <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <ComboBox Grid.Column="0" 
+                                  ItemsSource="{Binding ViewModel.LightTypes}"
+                                  SelectedItem="{Binding ViewModel.LightManagerType}"
+                                  IsEditable="False" 
+                                  Width="120"
+                                  Padding="5,5" 
+                                  Margin="0,0,0,0" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="0" 
                                   ItemsSource="{Binding ViewModel.AvailableComPorts}" 
                                   SelectedItem="{Binding ViewModel.NewComPort}"
                                   IsEditable="True" 
                                   Padding="5,5" 
-                                  Margin="0,0,5,0"/>
+                                  Margin="200,0,5,0"/>
                         <Button Grid.Column="1" 
                                 Content="刷新" 
                                 Command="{Binding ViewModel.RefreshAvailableComPortsCommand}"
@@ -114,7 +131,7 @@
                             </Button.Resources>
                         </Button>
                     </Grid>
-                    
+
                     <!-- 光源值输入 -->
                     <TextBlock Grid.Row="1" Grid.Column="0" 
                                Text="光源值:" 
@@ -125,7 +142,7 @@
                              Text="{Binding ViewModel.NewValuesString, UpdateSourceTrigger=PropertyChanged}" 
                              Padding="5,5" 
                              Margin="0,0,0,10"/>
-                             
+
                     <!-- 帮助提示 -->
                     <TextBlock Grid.Row="1" Grid.Column="1"
                                Text="使用逗号分隔多个值 (例如: 100,120,150)" 
@@ -135,7 +152,7 @@
                                Margin="5,0,0,0" 
                                HorizontalAlignment="Left"
                                Opacity="0.7"/>
-                             
+
                     <!-- 添加按钮 -->
                     <Button Grid.Row="2" Grid.Column="1" 
                             Content="添加光源" 
@@ -153,7 +170,7 @@
                     </Button>
                 </Grid>
             </GroupBox>
-            
+
             <!-- 编辑光源区域 -->
             <GroupBox Grid.Column="1" Header="编辑选中光源" Margin="5,0,0,0" Padding="12">
                 <Grid>
@@ -166,14 +183,14 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    
+
                     <!-- COM 端口编辑 -->
                     <TextBlock Grid.Row="0" Grid.Column="0" 
                                Text="COM 端口:" 
                                VerticalAlignment="Center" 
                                Margin="0,0,10,0"
                                HorizontalAlignment="Right"/>
-                               
+
                     <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -200,7 +217,7 @@
                             </Button.Resources>
                         </Button>
                     </Grid>
-                    
+
                     <!-- 光源值编辑 -->
                     <TextBlock Grid.Row="1" Grid.Column="0" 
                                Text="光源值:" 
@@ -211,7 +228,7 @@
                              Text="{Binding ViewModel.EditValuesString, UpdateSourceTrigger=PropertyChanged}" 
                              Padding="5,5" 
                              Margin="0,0,0,10"/>
-                             
+
                     <!-- 帮助提示 -->
                     <TextBlock Grid.Row="1" Grid.Column="1"
                                Text="使用逗号分隔多个值 (例如: 100,120,150)" 
@@ -221,7 +238,7 @@
                                Margin="5,0,0,0" 
                                HorizontalAlignment="Left"
                                Opacity="0.7"/>
-                    
+
                     <!-- 编辑按钮组 -->
                     <StackPanel Grid.Row="2" Grid.Column="1" 
                                 Orientation="Horizontal" 
@@ -239,7 +256,7 @@
                                 </Style>
                             </Button.Resources>
                         </Button>
-                        
+
                         <Button Content="删除光源" 
                                 Command="{Binding ViewModel.DeleteLightCommand}" 
                                 Padding="15,8" 

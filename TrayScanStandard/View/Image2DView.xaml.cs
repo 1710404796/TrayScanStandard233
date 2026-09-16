@@ -25,11 +25,9 @@ namespace TrayScanStandard.View
         public Image2DViewModel ViewModel { get; set; }
 
         private List<(Border, BarCodeRegionInfo)> _rois = [];
+        private bool _isUnloading;
 
-
-
-
-        Border _nowBorder;
+        Border? _nowBorder;
 
 
         public Image2DView(Image2DViewModel image2DViewModel, bool hidden = false)
@@ -52,6 +50,8 @@ namespace TrayScanStandard.View
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            _isUnloading = false;
+
             RefreshBorder();
 
             ViewModel.ColorUpdate += ViewModel_ColorUpdate;
@@ -186,13 +186,18 @@ namespace TrayScanStandard.View
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (_isUnloading)
+            {
+                return;
+            }
+
             // 记得保存一下
             RefreshBorder();
         }
 
         private void RefreshBorder()
         {
-            if (ViewModel.SelectBattery is null)
+            if (_isUnloading || ViewModel.SelectBattery is null)
             {
                 return;
             }
@@ -343,6 +348,11 @@ namespace TrayScanStandard.View
             }
         }        private async void TopBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (_isUnloading)
+            {
+                return;
+            }
+
             if (ViewModel.SelectBarCodeRegionInfo is null)
             {
                 return;
@@ -351,8 +361,14 @@ namespace TrayScanStandard.View
             if (_nowBorder is null)
             {
                 return;
-            }   
+            }
+
             await Task.Delay(20);
+            if (_isUnloading || ViewModel.SelectBarCodeRegionInfo is null || _nowBorder is null)
+            {
+                return;
+            }
+
             _nowBorder.Margin = new Thickness(ViewModel.SelectBarCodeRegionInfo.Left, ViewModel.SelectBarCodeRegionInfo.Top, 0, 0);
 
             _nowBorder.Width = ViewModel.SelectBarCodeRegionInfo.Width;
@@ -363,6 +379,11 @@ namespace TrayScanStandard.View
             ViewModel.MarkAsChanged();
         }        private async void ChannelBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (_isUnloading)
+            {
+                return;
+            }
+
             if (ViewModel.SelectBarCodeRegionInfo is null)
             {
                 return;
@@ -371,7 +392,13 @@ namespace TrayScanStandard.View
             {
                 return;
             }
+
             await Task.Delay(20);
+            if (_isUnloading || ViewModel.SelectBarCodeRegionInfo is null || _nowBorder is null)
+            {
+                return;
+            }
+
             (_nowBorder.Child as TextBlock).Text = ViewModel.SelectBarCodeRegionInfo.ChannelIdx.ToString();
             
             // 标记有未保存的修改
@@ -379,7 +406,7 @@ namespace TrayScanStandard.View
         }private void Delete_Border_Click(object sender, RoutedEventArgs e)
         {
             DeleteBorder(_nowBorder);
-            _nowBorder = null!;
+            _nowBorder = null;
             ViewModel.SelectBarCodeRegionInfo = null;
         }     
         
@@ -399,11 +426,11 @@ namespace TrayScanStandard.View
             }
 
             // 清除选中状态
-            _nowBorder = null!;
+            _nowBorder = null;
             ViewModel.SelectBarCodeRegionInfo = null;
         }
 
-        private void DeleteBorder(Border border)
+        private void DeleteBorder(Border? border)
         {
             if (border is null)
             {
@@ -421,6 +448,9 @@ namespace TrayScanStandard.View
         
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
+            _isUnloading = true;
+            _cancellationTokenSource?.Cancel();
+
             // 检查是否有未保存的修改
             if (ViewModel.HasUnsavedChanges)
             {
@@ -451,16 +481,12 @@ namespace TrayScanStandard.View
             img2d.Source = null!;
             img2d.BorderCanvas.Children.Clear();
             img2d.ResultCanvas.Children.Clear();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
 
 
             //foreach (var item in _rois)
             //{
             //    DeleteBorder(item.Item1);
             //}
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
             _rois.Clear();
             _nowBorder = null!;
 

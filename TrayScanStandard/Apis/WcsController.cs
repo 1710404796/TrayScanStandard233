@@ -22,8 +22,10 @@ namespace TrayScanStandard.Apis
         //[HttpGet("/CaptureImage")] 北京时代
         //[HttpPost("/Photo")] 福鼎时代
         private const string ERROR = "ERROR";
-        [HttpGet("/CaptureImage")]
+        [HttpPost("/CaptureImage")]
+        // [HttpPost("/CaptureImage/{port1}")]
         public async Task<QRCodeResult> Delect()
+        // public async Task<QRCodeResult> Delect(string port1)
         {
             while (!mainViewModel.IsWcsEnable)
             {
@@ -32,6 +34,7 @@ namespace TrayScanStandard.Apis
             logger.LogInformation("收到检测任务");
 
             if (MainStorage.SelectBattery is null) return new QRCodeResult() { ErrorCode = ErrorType.ERROR };
+            // if (MainStorage.SelectBattery is null) return new QRCodeResult() { ErrorCode = ErrorType.SomeResultError };
 
             var data = await mediator.Send(new DetectCCDCommand(MainStorage.SelectBattery));
             GC.Collect();
@@ -89,10 +92,10 @@ namespace TrayScanStandard.Apis
 
     public enum ErrorType
     {
-        Successed,
-        CameraError,
-        ERROR,
-        SomeResultError,
+        Successed,        // 成功
+        CameraError,      // 相机错误  
+        ERROR,            // 错误
+        SomeResultError,  // 存在二维码识别失败的情况
     }
 
     public class QRCodeResult

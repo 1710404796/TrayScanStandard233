@@ -7,7 +7,7 @@
         mc:Ignorable="d"
           xmlns:ui="http://schemas.modernwpf.com/2019"
 ui:WindowHelper.UseModernWindowStyle="True"
-        Title="PalletDetailWindow" Height="850" Width="800">
+        Title="PalletDetailWindow" Height="850" Width="1200">
     <Grid>
         <ScrollViewer>
             <local:PalletView x:Name="palletv"></local:PalletView>

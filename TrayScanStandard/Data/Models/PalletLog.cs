@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -32,7 +32,9 @@ namespace TrayScanStandard.Data.Models
         public int ChannelCount { get; set; } = 64;
 
         [NotMapped]
-        public int RealCount => BatteryInfo?.Count(s => !string.IsNullOrWhiteSpace(s.BatteryCode)) ?? 0;
+        public int RealCount => BatteryInfo?.Count(s =>
+            !string.IsNullOrWhiteSpace(s.BatteryCode)
+            && !string.Equals(s.BatteryCode.Trim(), "Error", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
         public DateTime ZuPanTime { get; set; } = DateTime.Now;
         public int Column { get; set; }
@@ -48,3 +50,4 @@ namespace TrayScanStandard.Data.Models
         public string BatteryCode { get; set; } = string.Empty;
     }
 }
+

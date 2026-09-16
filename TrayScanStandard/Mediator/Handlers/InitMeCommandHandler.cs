@@ -14,6 +14,7 @@ using System.Windows;
 using TrayScanStandard.Attritubes;
 using TrayScanStandard.Data;
 using TrayScanStandard.Mediator.Commands;
+using TrayScanStandard.Models.CZPallet;
 using TrayScanStandard.Service;
 using VMWebAIClient;
 
@@ -39,6 +40,7 @@ namespace TrayScanStandard.Mediator.Handlers
             FilenameHelper.CreateDir("DataFrame");
             FilenameHelper.CreateDir("InsertLog");
             FilenameHelper.CreateDir("Data2D");
+            FilenameHelper.CreateDir("Error2Data");
 
             foreach (var item in Enum.GetValues<PowerEnum>())
             {
@@ -55,7 +57,11 @@ namespace TrayScanStandard.Mediator.Handlers
                     }
                 }
             }
+
+            // 让程序能够处理 GB2312、GBK 等中文编码（非 Unicode 编码）
             Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+            // 读取当前电池类型
             MainStorage.SelectBattery = linxContext.BatteryTypeInfos.FirstOrDefault(s => s.Id == MainStorage.Saves.SelectBatteryId);
 
             foreach (var item in Enum.GetNames<RoleEnum>())
@@ -63,19 +69,56 @@ namespace TrayScanStandard.Mediator.Handlers
 
                 await role.CreateAsync(new LinxRole { RoleName = item });
             }
+
+            // 初始化相机服务
             scanCameraService.Init();
+
+
             // 通常这里要初始化一些硬件设备
 
             // 例如：相机、光源、CST等
 
             // 也需要注册一些任务等
-            MainStorage.CST = await MainStorage.Saves.LightInfos.Map(
+
+            // 初始化光源
+            var cstList = await MainStorage.Saves.LightInfos.Map(
                 async s =>
                 {
-                    Enum.TryParse<SerialPortType>(s.Com, out var com);
-                    var g = await mediator.Send(new CreateCSTLightCommand(Com: com));
-                    return await mediator.Send(new GetLightQuery(g));
-                }).TraverseSerial(s => s!);
+                    if (!Enum.TryParse<SerialPortType>(s.Com, true, out var com))
+                    {
+                        logger.LogError($"光源地址 '{s.Com}' 不是有效的 COM 端口（支持 COM1-COM8）");
+                        return null;
+                    }
+
+                    // 根据光源类型选择底层驱动：
+                    // Cognex -> CSTControllerDll
+                    // Wordop -> 串口 ASCII 协议（固定 19200）
+                    var controllerType = s.Type == LightType.Wordop
+                        ? LightControllerType.Wordop
+                        : LightControllerType.Cognex;
+                    var baudRate = s.Type == LightType.Wordop ? 19200 : 9600;
+
+                    // 注意：LoggingBehavior 出错时会返回 default；这里必须显式判空，避免后续 NRE。
+                    var guid = await mediator.Send(new CreateCSTLightCommand(
+                        Com: com,
+                        ControllerType: controllerType,
+                        BaudRate: baudRate));
+                    if (string.IsNullOrWhiteSpace(guid))
+                    {
+                        logger.LogError($"光源初始化失败，已跳过 \n Type={s.Type}, Com={s.Com}, Baud={baudRate}");
+                        return null;
+                    }
+
+                    var cst = await mediator.Send(new GetLightQuery(guid));
+                    if (cst == null)
+                    {
+                        logger.LogError($"光源获取失败，已跳过 \n Type={s.Type}, Com={s.Com}, Guid={guid}");
+                    }
+                    return cst;
+                }).TraverseSerial(s => s);
+
+            // 仅保留初始化成功的光源控制器，避免拍照流程访问到空对象。
+            MainStorage.CST = cstList.Where(s => s != null).Select(s => s!);
             //var sol= CodeDetectExtensions
             //    .LoadSolution(new VMSolutionInfo(@"test.sol", ""));
             //Console.WriteLine(sol);
@@ -84,6 +127,8 @@ namespace TrayScanStandard.Mediator.Handlers
             //    ;
             //MainStorage.AlgoCnn = sol
             //    .Bind(s => s.CreateAlgo(new DetectVMCnnConfig("test", "cnn_detect")));
+
+            // 算法加载
             var algores = await vmWebAIClient.CreateAlgoAsync(FilenameHelper.AppPath + @"test.sol", LinxUniverse.Algo.Common.DetectType.VisionMaster);
 
             logger.LogInformation("算法加载结果: {Result}", algores);

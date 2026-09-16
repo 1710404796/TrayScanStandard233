@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:TrayScanStandard.View"
-      
       d:DataContext="{d:DesignInstance Type=local:BatteryManager}"
       mc:Ignorable="d"
       Title="BatteryManager" >
@@ -30,12 +29,11 @@
         <DataGrid Grid.Row="1" 
                   CanUserAddRows="False"
                   AutoGenerateColumns="False"
-                  
                   RowEditEnding="DataGrid_RowEditEnding"
                   CellEditEnding="DataGrid_CellEditEnding"
                   ItemsSource="{Binding ViewModel.Battery}"
-                  SelectedItem="{Binding ViewModel.SelectedBattery}"
-                  >
+                  SelectedItem="{Binding ViewModel.SelectedBattery}">
+
             <DataGrid.Columns>
                 <DataGridTextColumn Header="电池类型" Binding="{Binding TypeName}"/>
                 <DataGridTextColumn IsReadOnly="False" Header="通道数量" Binding="{Binding  Count}"/>

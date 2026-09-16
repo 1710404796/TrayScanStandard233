@@ -21,6 +21,7 @@ using TrayScanStandard.Data;
 using MediatR;
 using TrayScanStandard.Mediator.Commands;
 using TrayScanStandard.Service;
+using TrayScanStandard.Utils;
 using LinxUniverse.Algo.Common;
 using Microsoft.Extensions.Logging;
 using MugenCodeDetecter;
@@ -224,16 +225,22 @@ namespace TrayScanStandard.ViewModel
                     // 绘制到图上？
 
                     _logger.LogInformation(r.ToArr().ToString());
+                    if (r.Length > 0)
+                    {
+                        SaveError2DataImage(r[0].Codes);
+                    }
 
 
                 },
                 Left: l =>
                 {
+                    SaveError2DataImage([]);
                     _mediator.Send (new WarningBoxCommand(l)).Wait();
 
                 },
                 Bottom: () => 
                 {
+                    SaveError2DataImage([]);
                     _mediator.Send(new WarningBoxCommand("Detect failed")).Wait();
                     _logger.LogError("Detect failed");
                 }
@@ -243,6 +250,33 @@ namespace TrayScanStandard.ViewModel
             UpdateResult();
             Update();
         }
+
+        private void SaveError2DataImage(IEnumerable<CodeInfo> codes)
+        {
+            if (SelectBattery == null || CameraIdx <= 0)
+            {
+                return;
+            }
+
+            var regions = SelectBattery.Regions.ElementAtOrDefault(CameraIdx - 1);
+            if (regions == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Error2DataImageSaver.SaveIfHasMissingCodes(ResultImg, regions, codes))
+                {
+                    _logger.LogWarning("二维码识别失败图片已保存: {ImagePath}", ResultImg);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "保存二维码识别失败图片失败: {ImagePath}", ResultImg);
+            }
+        }
+
         public byte[] tempImg = [];
         private Option<CodeDetectResult> _tempResult = None;
 
@@ -355,6 +389,7 @@ namespace TrayScanStandard.ViewModel
 
                 );
 
+            #region
             //if (SelectBattery == null)
             //{
             //    MessageBox.Show("未选择托盘类型");
@@ -437,6 +472,7 @@ namespace TrayScanStandard.ViewModel
             //}
 
             // 撕烤一下更新
+            #endregion
 
             Update();
         }

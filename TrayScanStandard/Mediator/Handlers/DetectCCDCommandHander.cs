@@ -14,9 +14,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using TrayScanStandard.Data.Models;
 using TrayScanStandard.Mediator.Commands;
 using TrayScanStandard.Mediator.Queries;
 using TrayScanStandard.Service;
+using TrayScanStandard.Utils;
 using TrayScanStandard.ViewModel;
 using VMWebAIClient;
 
@@ -126,6 +128,12 @@ namespace TrayScanStandard.Mediator.Handlers
             );
             logger.LogInformation("推送完成 获取结果");
 
+            dataFilenames.IfRight(f =>
+            {
+                res.IfRight(cameraCodes =>
+                    SaveError2DataImages(f, request.BatteryTypeInfo, cameraCodes));
+            });
+
             var res1 = res.Map(r =>
                 r.SelectMany(s => s)
                 .DistinctBy(s => s.Index)
@@ -216,6 +224,40 @@ namespace TrayScanStandard.Mediator.Handlers
             return res1;
             //).Traverse(s => s)
             //    ));
+        }
+
+        private void SaveError2DataImages(
+            IEnumerable<IEnumerable<string>> imageFilesByCamera,
+            BatteryTypeInfo batteryTypeInfo,
+            IEnumerable<IEnumerable<CodeInfo>> codesByCamera)
+        {
+            var cameraImages = imageFilesByCamera.Select(s => s.ToArray()).ToArray();
+            var cameraCodes = codesByCamera.Select(s => s.ToArray()).ToArray();
+            var cameraRegions = batteryTypeInfo.Regions.Take(cameraImages.Length).ToArray();
+            var count = Math.Min(cameraImages.Length, Math.Min(cameraCodes.Length, cameraRegions.Length));
+
+            for (var i = 0; i < count; i++)
+            {
+                foreach (var imagePath in cameraImages[i])
+                {
+                    if (string.IsNullOrWhiteSpace(imagePath))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        if (Error2DataImageSaver.SaveIfHasMissingCodes(imagePath, cameraRegions[i], cameraCodes[i]))
+                        {
+                            logger.LogWarning("二维码识别失败图片已保存: {ImagePath}", imagePath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "保存二维码识别失败图片失败: {ImagePath}", imagePath);
+                    }
+                }
+            }
         }
     }
 }

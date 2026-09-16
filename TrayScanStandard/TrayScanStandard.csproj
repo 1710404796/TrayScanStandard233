@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -30,6 +30,7 @@
     <Content Include="灵西机器人原色.ico" />
   </ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="MediatR" Version="12.2.0" />
 		<PackageReference Include="Humanizer.Core.zh-CN" Version="2.14.1" />

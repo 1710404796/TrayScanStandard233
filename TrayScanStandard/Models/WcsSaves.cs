@@ -1,4 +1,4 @@
-﻿using Camera.Fs.Common;
+using Camera.Fs.Common;
 using LanguageExt;
 using LinxUniverse.Algo.Common;
 using LinxUniverse.Utils;
@@ -26,6 +26,11 @@ namespace TrayScanStandard.Models
         {
             get; set;
         } = "50005";
+
+        //public string Port1
+        //{
+        //    get; set;
+        //} = "";
         public Visibility BackGroundEnable
         {
             get;
@@ -79,7 +84,7 @@ namespace TrayScanStandard.Models
         public bool IsAlgoEnable { get; set; } = true;
     }
 
-    public record LightInfo(string Com, int[] Values);
+    public record LightInfo(string Com, int[] Values, LightType Type = LightType.Cognex);
     public record CameraSetting(
 
         )

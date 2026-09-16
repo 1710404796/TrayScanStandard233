@@ -1,10 +1,10 @@
-﻿<Page x:Class="TrayScanStandard.View.CZPallet.PalletLogView"
+<Page x:Class="TrayScanStandard.View.CZPallet.PalletLogView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:TrayScanStandard.View.CZPallet"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       xmlns:lang="clr-namespace:TrayScanStandard.Properties"
       Loaded="Page_Loaded"
       d:DataContext="{d:DesignInstance Type=local:PalletLogView}"
@@ -15,72 +15,114 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="50"></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
+
         <StackPanel Orientation="Horizontal" Margin="5">
+
             <Button Content="{x:Static lang:Resources.Query}"
- Command="{Binding ViewModel.SearchCommand}"/>
-            <DatePicker SelectedDate="{Binding ViewModel.StartTime}" Margin="10,0,0,0"></DatePicker>
-            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-               Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
-                Text="{x:Static lang:Resources.To}"
-                       
-    ></TextBlock>
-            <DatePicker SelectedDate="{Binding ViewModel.EndTime}" Margin="10,0,0,0"></DatePicker>
+                    Command="{Binding ViewModel.SearchCommand}"/>
+
+            <DatePicker SelectedDate="{Binding ViewModel.StartTime}" Margin="10,0,0,0"/>
 
             <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-           Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
-                       
-                Text="{x:Static lang:Resources.TrayBarcode}"
-                       
-></TextBlock>
-            <TextBox Width="150" Margin="10,0,0,0" Text="{Binding ViewModel.Code}"
-                     VerticalContentAlignment="Center"
-                     
-                     ></TextBox>
+                       Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
+                       Text="{x:Static lang:Resources.To}"/>
 
-            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-           Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
-                       
-                Text="显示条目"
-                       
-></TextBlock>
-            <TextBox Width="150" Margin="10,0,0,0" Text="{Binding ViewModel.LogNum}"
-                     VerticalContentAlignment="Center"
-                     
-                     ></TextBox>
+            <DatePicker SelectedDate="{Binding ViewModel.EndTime}" Margin="10,0,0,0"/>
 
             <Button Content="{x:Static lang:Resources.DeriveCVS}" Margin="10,0,0,0"
-Command="{Binding ViewModel.ExportCommand}"/>
-            
-            
+                    Command="{Binding ViewModel.ExportCommand}"/>
+
             <Button Content="导出全部" Margin="10,0,0,0"
-Command="{Binding ViewModel.ExportAllCommand}"/>
+                    Command="{Binding ViewModel.ExportAllCommand}"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" 
-          CanUserAddRows="False"
-          AutoGenerateColumns="False"
-          ItemsSource="{Binding ViewModel.PalletLogs}"
->
+        <DataGrid Grid.Row="1"
+                  CanUserAddRows="False"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding ViewModel.PalletLogs}"> 
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="{x:Static lang:Resources.Check}" Binding="{Binding IsSelect}" IsReadOnly="False"></DataGridCheckBoxColumn>
-                <DataGridTextColumn Header="{x:Static lang:Resources.TrayBarcode}" Binding="{Binding PalletCode}" ></DataGridTextColumn>
-                <DataGridTextColumn Header="{x:Static lang:Resources.AssemblyTime}" Binding="{Binding ZuPanTime}"></DataGridTextColumn>
-                <DataGridTextColumn Header="{x:Static lang:Resources.ChannelCount}" Binding="{Binding ChannelCount}"></DataGridTextColumn>
-                <DataGridTextColumn Header="识别条码数" Binding="{Binding RealCount}"></DataGridTextColumn>
-                <!--<DataGridTextColumn Header="托盘信息" Binding="{Binding }" ></DataGridTextColumn>-->
+
+                <DataGridCheckBoxColumn 
+                    Header="{x:Static lang:Resources.Check}" 
+                    Binding="{Binding IsSelect}" 
+                    IsReadOnly="False"/>
+
+                <DataGridTextColumn 
+                    Header="扫码时间" 
+                    Binding="{Binding ZuPanTime}" 
+                    IsReadOnly="True"/>
+
+                <DataGridTextColumn 
+                    Header="通道数量" 
+                    Binding="{Binding ChannelCount}" 
+                    IsReadOnly="True"/>
+
+                <DataGridTextColumn 
+                    Header="识别条码数" 
+                    Binding="{Binding RealCount}" 
+                    IsReadOnly="True"/>
+
                 <DataGridTemplateColumn Header="{x:Static lang:Resources.TrayInformation}">
+
                     <DataGridTemplateColumn.CellTemplate>
+
                         <DataTemplate>
+
                             <Button Content="{x:Static lang:Resources.TrayContents}"
-                    Tag="{Binding }"  
-                    HorizontalAlignment="Stretch"
-                    Width="Auto"
-                    Click="Button_Click" />
+                                    Tag="{Binding }"
+                                    HorizontalAlignment="Stretch"
+                                    Width="Auto"
+                                    Click="Button_Click"/> 
+
                         </DataTemplate>
+
                     </DataGridTemplateColumn.CellTemplate>
+
                 </DataGridTemplateColumn>
+
             </DataGrid.Columns>
+
         </DataGrid>
+
+        <DockPanel Grid.Row="2" Margin="8,0">
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                <TextBlock VerticalAlignment="Center" Margin="0,0,16,0"
+                           Text="{Binding ViewModel.TotalCount, StringFormat=共 {0} 条，每页 100 条}" />
+
+                <Button Content="上一页"
+                        Width="70"
+                        Margin="0,0,8,0"
+                        Command="{Binding ViewModel.PreviousPageCommand}"
+                        IsEnabled="{Binding ViewModel.CanPreviousPage}" />
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="0,0,8,0"
+                           Text="{Binding ViewModel.CurrentPage, StringFormat=第 {0} 页}" />
+
+                <TextBlock VerticalAlignment="Center"
+                           Margin="0,0,12,0"
+                           Text="{Binding ViewModel.TotalPages, StringFormat=/ {0} 页}" />
+
+                <TextBox Width="50"
+                         Margin="0,0,6,0"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding ViewModel.JumpPageText, UpdateSourceTrigger=PropertyChanged}" />
+
+                <Button Content="跳转"
+                        Width="60"
+                        Margin="0,0,8,0"
+                        Command="{Binding ViewModel.JumpToPageCommand}" />
+
+                <Button Content="下一页"
+                        Width="70"
+                        Command="{Binding ViewModel.NextPageCommand}"
+                        IsEnabled="{Binding ViewModel.CanNextPage}" />
+
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Page>
