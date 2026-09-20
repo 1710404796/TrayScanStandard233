@@ -37,6 +37,11 @@ namespace TrayScanStandard.View
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 保存配置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             MainStorage.SaveManager.Save();
@@ -48,16 +53,26 @@ namespace TrayScanStandard.View
             SaveButton.IsEnabled = true;
         }
 
+        /// <summary>
+        /// 权限配置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SetPower_Click(object sender, RoutedEventArgs e)
         {
             new PowerSettingWindows().ShowDialog();
 
         }
 
-        private void StationSetting_Click(object sender, RoutedEventArgs e)
-        {
-            App.GetService<StationSettingView>().ShowDialog();
+        /// <summary>
+        /// 工位配置
+        /// </summary>
+        /// <param name = "sender" ></ param >
+        /// < param name="e"></param>
+        //private void StationSetting_Click(object sender, RoutedEventArgs e)
+        //{
+        //    App.GetService<StationSettingView>().ShowDialog();
 
-        }
+        //}
     }
 }

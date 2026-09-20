@@ -3,6 +3,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Text.Json.Serialization;
 using TrayScanStandard.Data;
 using TrayScanStandard.Data.Models;
 using TrayScanStandard.Mediator.Commands;
@@ -24,16 +25,17 @@ namespace TrayScanStandard.Apis
         private const string ERROR = "ERROR";
         [HttpPost("/CaptureImage")]
         // [HttpPost("/CaptureImage/{port1}")]
-        public async Task<QRCodeResult> Delect()
+        public async Task<QRCodeResult> Delect([FromBody] CaptureImageRequest? request)
         // public async Task<QRCodeResult> Delect(string port1)
         {
+            var containerCode = request?.ContainerCode ?? string.Empty;
             while (!mainViewModel.IsWcsEnable)
             {
                 await Task.Delay(1000);
             }
-            logger.LogInformation("收到检测任务");
+            logger.LogInformation($"收到检测任务, 托盘号: {containerCode}");
 
-            if (MainStorage.SelectBattery is null) return new QRCodeResult() { ErrorCode = ErrorType.ERROR };
+            if (MainStorage.SelectBattery is null) return new QRCodeResult() { ErrorCode = ErrorType.ERROR, ContainerCode = containerCode };
             // if (MainStorage.SelectBattery is null) return new QRCodeResult() { ErrorCode = ErrorType.SomeResultError };
 
             var data = await mediator.Send(new DetectCCDCommand(MainStorage.SelectBattery));
@@ -47,23 +49,19 @@ namespace TrayScanStandard.Apis
                         .ToList();
                     var log = new PalletLog
                     {
-                        Column = MainStorage.SelectBattery.Column, // 这里要可派之
+                        PalletCode = containerCode,
+                        Column = MainStorage.SelectBattery.Column, 
                         PalletType = Models.CZPallet.PalletType.组盘,
-
                         ChannelCount = MainStorage.SelectBattery.Count,
-                        BatteryInfo
-                            = batteryCodes.Map(s => new BatteryInfo
-                            {
-                                BatteryCode = s,
-                                BatteryLevel = string.IsNullOrEmpty(s) ? Models.BatteryLevel.ERROR : Models.BatteryLevel.OK
-                            })
-                            .ToList()
-
+                        BatteryInfo = batteryCodes.Map(s => new BatteryInfo
+                        {
+                            BatteryCode = s,
+                            BatteryLevel = string.IsNullOrEmpty(s) ? Models.BatteryLevel.ERROR : Models.BatteryLevel.OK
+                        }).ToList()
                     };
                     linxContext.PalletLogs.Add(log);
                     linxContext.SaveChanges();
-                }
-                );
+                });
 
             //retry<>
             return data.Match(
@@ -76,6 +74,7 @@ namespace TrayScanStandard.Apis
                     return new QRCodeResult()
                     {
                         ErrorCode = ErrorType.Successed,
+                        ContainerCode = containerCode,
                         Data = batteryCodes
                             .Select((s, i) => new { Index = i + 1, Code = s }) //Todo: 看看+1
                             .ToDictionary(s => s.Index, s => s.Code)
@@ -84,7 +83,7 @@ namespace TrayScanStandard.Apis
                 Left: e =>
                 {
                     mediator.Send(new WarningBoxCommand($"检测失败 错误原因:{e}")).Wait();
-                    return new QRCodeResult() { ErrorCode = ErrorType.CameraError };
+                    return new QRCodeResult() { ErrorCode = ErrorType.CameraError, ContainerCode = containerCode };
                 }
             );
         }
@@ -98,9 +97,19 @@ namespace TrayScanStandard.Apis
         SomeResultError,  // 存在二维码识别失败的情况
     }
 
+    public class CaptureImageRequest
+    {
+        [JsonPropertyName("containerCode")]
+        public string ContainerCode { get; set; } = string.Empty;
+    }
+
     public class QRCodeResult
     {
+        [JsonPropertyName("errorCode")]
         public ErrorType ErrorCode { get; set; }
-        public Dictionary<int, string> Data { get; set; }
+        [JsonPropertyName("containerCode")]
+        public string ContainerCode { get; set; } = string.Empty;
+        [JsonPropertyName("data")]
+        public Dictionary<int, string> Data { get; set; } = [];
     }
 }

@@ -23,6 +23,19 @@
             <Button Content="{x:Static lang:Resources.Query}"
                     Command="{Binding ViewModel.SearchCommand}"/>
 
+            <TextBlock Text="托盘条码"
+                       VerticalAlignment="Center"
+                       Margin="10,0,0,0"
+                       Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"/>
+            <TextBox Width="150"
+                     Margin="6,0,0,0"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding ViewModel.Code, UpdateSourceTrigger=PropertyChanged}">
+
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding ViewModel.SearchCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
             <DatePicker SelectedDate="{Binding ViewModel.StartTime}" Margin="10,0,0,0"/>
 
             <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -63,6 +76,11 @@
                     Header="识别条码数" 
                     Binding="{Binding RealCount}" 
                     IsReadOnly="True"/>
+
+                <DataGridTextColumn 
+                    Header="托盘条码" 
+                    Binding="{Binding PalletCode}"
+                    IsReadOnly="True"/> 
 
                 <DataGridTemplateColumn Header="{x:Static lang:Resources.TrayInformation}">
 

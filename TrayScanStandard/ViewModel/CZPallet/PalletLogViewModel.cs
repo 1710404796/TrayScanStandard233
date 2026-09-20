@@ -31,7 +31,7 @@ namespace TrayScanStandard.ViewModel.CZPallet
         public DateTime StartTime { get; set; } = DateTime.Today.AddDays(-30);
         public DateTime EndTime { get; set; } = DateTime.Today.AddDays(1);
 
-        public string Code { get; set; } = string.Empty;
+        [ObservableProperty] private string _code = string.Empty;
         public int LogNum { get; set; } = SinglePageSize;
 
         public int PageSize => SinglePageSize;

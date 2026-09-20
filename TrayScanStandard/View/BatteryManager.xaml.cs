@@ -56,10 +56,10 @@ public partial class BatteryManager : Page
         ViewModel.SavePallet();
     }
 
-    private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
-    {
-        ViewModel.FilterBattery((sender as TextBox).Text);
-    }
+    //private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)
+    //{
+    //    ViewModel.FilterBattery((sender as TextBox).Text);
+    //}
 
     private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {

@@ -73,7 +73,8 @@ namespace TrayScanStandard.Models
         /// <summary>
         /// 工位设置 // 防止有多工位的
         /// </summary>
-        public StageSetting StageSetting { get; set; } = new();        public int SelectBatteryId { get; set; } = 0;
+        public StageSetting StageSetting { get; set; } = new();        
+        public int SelectBatteryId { get; set; } = 0;
         public LightInfo[] LightInfos { get; set; } = [];
         public bool CameraEnable { get; set; } = false;
         

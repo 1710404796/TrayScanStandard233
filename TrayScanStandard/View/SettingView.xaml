@@ -22,8 +22,7 @@
             <StackPanel Grid.Column="1">
                 <TextBlock FontSize="15"
                     Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
-                    Margin="0,15,0,0"
-                       >
+                    Margin="0,15,0,0">
                     本地监听端口
                 </TextBlock>
                 <TextBox 
@@ -94,11 +93,11 @@
                     算法是否启用
                 </CheckBox>
 
-                <CheckBox 
+                <!--<CheckBox 
                 Margin="0,10,0,0" 
                 IsChecked="{Binding ViewModel.IsBackGround}">
                     是否有背景
-                </CheckBox>
+                </CheckBox>-->
 
             </StackPanel>
         </Grid>

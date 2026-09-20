@@ -16,14 +16,13 @@
             <Button Content="添加电池" Command="{Binding ViewModel.AddPalletCommand}"/>
             <Button Content="删除电池" Command="{Binding ViewModel.DeletePalletCommand}"/>
             <Button Content="保存电池" Command="{Binding ViewModel.SavePalletCommand}"/>
-            <TextBlock
+            <!--<TextBlock
                 VerticalAlignment="Center"
                 FontSize="15"
                 Foreground="{DynamicResource SystemControlPageTextBaseHighBrush}"
                 Width="100"
-                Margin="10,0,0,0"
-                >产品型号过滤:</TextBlock>
-            <TextBox Width="100" Height="30" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
+                Margin="10,0,0,0">产品型号过滤:</TextBlock>
+            <TextBox Width="100" Height="30" TextChanged="TextBoxBase_OnTextChanged"></TextBox>-->
         </StackPanel>
         
         <DataGrid Grid.Row="1" 

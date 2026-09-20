@@ -15,7 +15,7 @@ namespace TrayScanStandard.ViewModel
         bool _canEditing = true;
         public bool IsBackGround
         {
-            get => Saves.BackGroundEnable == System.Windows.Visibility.Visible;
+            get => Saves.BackGroundEnable == System.Windows.Visibility.Hidden;
             set
             {
                 Saves.BackGroundEnable = value ? System.Windows.Visibility.Visible : System.Windows.Visibility.Hidden;
